@@ -7,7 +7,7 @@ interface Props { data: AdCreative[] }
 function aggregate(raw: AdCreative[]) {
   const map = new Map<string, { ad_name: string; ad_id: string; ig: string; spend: number; impressions: number; link_clicks: number; leads: number }>()
   for (const r of raw) {
-    const k = r.ad_id || r.ad_name
+    const k = r.ad_name || r.ad_id
     const p = map.get(k) || { ad_name: r.ad_name, ad_id: r.ad_id, ig: '', spend: 0, impressions: 0, link_clicks: 0, leads: 0 }
     p.spend += r.spend || 0; p.impressions += r.impressions || 0
     p.link_clicks += r.link_clicks || 0; p.leads += r.leads || 0
