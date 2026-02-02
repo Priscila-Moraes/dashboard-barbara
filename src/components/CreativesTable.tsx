@@ -36,6 +36,7 @@ export function CreativesTable({ data }: Props) {
             <th className="py-3 px-4 text-left text-xs text-white/40 uppercase tracking-wide font-medium">Criativo</th>
             <th className="py-3 px-4 text-right text-xs text-white/40 uppercase tracking-wide font-medium">Gasto</th>
             <th className="py-3 px-4 text-right text-xs text-white/40 uppercase tracking-wide font-medium">Conversas</th>
+            <th className="py-3 px-4 text-right text-xs text-white/40 uppercase tracking-wide font-medium">Conv.%</th>
             <th className="py-3 px-4 text-right text-xs text-white/40 uppercase tracking-wide font-medium">CPL</th>
             <th className="py-3 px-4 text-right text-xs text-white/40 uppercase tracking-wide font-medium">CTR</th>
             <th className="py-3 px-4 text-center text-xs text-white/40 uppercase tracking-wide font-medium">Link</th>
@@ -48,6 +49,7 @@ export function CreativesTable({ data }: Props) {
               <td className="py-3 px-4 text-white/80 font-medium">{r.ad_name}</td>
               <td className="py-3 px-4 text-right text-green-400 font-semibold">{formatCurrency(r.spend)}</td>
               <td className="py-3 px-4 text-right text-cyan-400 font-semibold">{formatNumber(r.leads)}</td>
+              <td className="py-3 px-4 text-right text-emerald-400 font-semibold">{formatPercent(r.link_clicks > 0 ? (r.leads / r.link_clicks) * 100 : 0)}</td>
               <td className="py-3 px-4 text-right text-purple-400">{formatCurrency(r.cpl)}</td>
               <td className="py-3 px-4 text-right text-white/60">{formatPercent(r.ctr)}</td>
               <td className="py-3 px-4 text-center">

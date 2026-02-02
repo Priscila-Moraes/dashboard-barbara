@@ -32,7 +32,7 @@ export function CampaignsTable({ data }: Props) {
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-white/10">
-            {['Campanha','Gasto','Impressões','Cliques','Conversas','CPL','CTR','CPC','CPM'].map((h, i) => (
+            {['Campanha','Gasto','Impressões','Cliques','Conversas','Conv.%','CPL','CTR','CPC','CPM'].map((h, i) => (
               <th key={h} className={`py-3 px-4 text-xs text-white/40 uppercase tracking-wide font-medium ${i === 0 ? 'text-left' : 'text-right'}`}>{h}</th>
             ))}
           </tr>
@@ -45,6 +45,7 @@ export function CampaignsTable({ data }: Props) {
               <td className="py-3 px-4 text-right text-white/60">{formatNumber(r.impressions)}</td>
               <td className="py-3 px-4 text-right text-white/60">{formatNumber(r.link_clicks)}</td>
               <td className="py-3 px-4 text-right text-cyan-400 font-semibold">{formatNumber(r.leads)}</td>
+              <td className="py-3 px-4 text-right text-emerald-400 font-semibold">{formatPercent(r.link_clicks > 0 ? (r.leads / r.link_clicks) * 100 : 0)}</td>
               <td className="py-3 px-4 text-right text-purple-400">{formatCurrency(r.cpl)}</td>
               <td className="py-3 px-4 text-right text-white/60">{formatPercent(r.ctr)}</td>
               <td className="py-3 px-4 text-right text-orange-400">{formatCurrency(r.cpc)}</td>
