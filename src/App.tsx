@@ -1,12 +1,16 @@
 import { useState, useEffect, useCallback } from 'react'
 import { format } from 'date-fns'
-import { Loader2, RefreshCw } from 'lucide-react'
+import {
+  Loader2, RefreshCw, DollarSign, Eye, BarChart3,
+  MousePointerClick, TrendingDown, Gauge
+} from 'lucide-react'
 import { fetchDaily, fetchCreatives, DailySummary, AdCreative } from './lib/supabase'
 import { fmtBRL, fmtDot, fmtPct } from './lib/utils'
 import DatePicker from './components/DatePicker'
-import MetricCards from './components/MetricCards'
-import ComboChart from './components/ComboChart'
+import MetricCard from './components/MetricCard'
 import Funnel from './components/Funnel'
+import SidePanel from './components/SidePanel'
+import DailyChart from './components/DailyChart'
 import CreativesTable from './components/CreativesTable'
 import DailyTable from './components/DailyTable'
 
@@ -38,34 +42,22 @@ export default function App() {
     conv: a.conv + (r.total_leads || 0),
   }), { spend: 0, impr: 0, clicks: 0, conv: 0 })
 
-  const reach = Math.round(t.impr * 0.65)
   const cpm = t.impr > 0 ? (t.spend / t.impr) * 1000 : 0
+  const ctr = t.impr > 0 ? (t.clicks / t.impr) * 100 : 0
   const cpc = t.clicks > 0 ? t.spend / t.clicks : 0
   const costConv = t.conv > 0 ? t.spend / t.conv : 0
 
-  const metrics = [
-    { label: 'Investimento', value: fmtBRL(t.spend) },
-    { label: 'Mensagens', value: fmtDot(t.conv) },
-    { label: 'Custo por msg', value: fmtBRL(costConv) },
-    { label: 'Cliques', value: fmtDot(t.clicks) },
-    { label: 'CPC', value: fmtBRL(cpc) },
-    { label: 'Impressões', value: fmtDot(t.impr) },
-    { label: 'CPM', value: fmtBRL(cpm) },
-  ]
-
   return (
-    <div className="min-h-screen bg-dark-950">
-      {/* HEADER */}
-      <header className="sticky top-0 z-40 backdrop-blur-xl bg-dark-950/80 border-b border-white/5">
+    <div className="min-h-screen bg-[#0a0a12]">
+      {/* ── HEADER ─────────────── */}
+      <header className="sticky top-0 z-40 bg-[#0a0a12]/90 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <img src="/logo.png" alt="Ascensão 2026" className="h-8 object-contain" />
-            <div className="hidden sm:block h-6 w-px bg-white/10"></div>
-            <span className="hidden sm:block text-white/30 text-xs font-medium">WhatsApp Leads</span>
+          <div className="flex items-center gap-3">
+            <img src="/logo.png" alt="Ascensão 2026" className="h-7 object-contain" />
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <button onClick={load} disabled={loading}
-              className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-all disabled:opacity-50">
+              className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/40 hover:text-white transition-all disabled:opacity-40">
               <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
             </button>
             <DatePicker startDate={s} endDate={e} onChange={(a, b) => { setS(a); setE(b) }} />
@@ -73,11 +65,11 @@ export default function App() {
         </div>
       </header>
 
-      {/* CONTENT */}
+      {/* ── CONTENT ────────────── */}
       <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-5">
         {loading ? (
           <div className="flex items-center justify-center h-80">
-            <Loader2 className="animate-spin text-accent-500" size={28} />
+            <Loader2 className="animate-spin text-emerald-500" size={28} />
           </div>
         ) : daily.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-80 text-white/30">
@@ -86,23 +78,54 @@ export default function App() {
           </div>
         ) : (
           <>
-            <MetricCards metrics={metrics} />
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 animate-fade-in-up" style={{ animationDelay: '150ms' }}>
-              <div className="lg:col-span-2">
-                <ComboChart data={daily} />
+            {/* ── ROW 1: Funnel + Metrics + SidePanel ── */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 animate-fade-in-up">
+              {/* Funnel - 4 cols */}
+              <div className="lg:col-span-4">
+                <Funnel impressions={t.impr} clicks={t.clicks} conversations={t.conv} />
               </div>
-              <div>
-                <Funnel impressions={t.impr} reach={reach} clicks={t.clicks} conversations={t.conv} />
+
+              {/* Metric Cards - 2x3 grid - 5 cols */}
+              <div className="lg:col-span-5 grid grid-cols-2 gap-3">
+                <MetricCard label="Investimento" value={fmtBRL(t.spend)}
+                  icon={<DollarSign size={18} />} color="text-emerald-400" delay={0} />
+                <MetricCard label="CPM" value={fmtBRL(cpm)}
+                  icon={<Eye size={18} />} color="text-amber-400" delay={40} />
+                <MetricCard label="CTR" value={fmtPct(ctr)}
+                  icon={<MousePointerClick size={18} />} color="text-purple-400" delay={80} />
+                <MetricCard label="CPC Link" value={fmtBRL(cpc)}
+                  icon={<TrendingDown size={18} />} color="text-cyan-400" delay={120} />
+                <MetricCard label="Custo/Conv." value={fmtBRL(costConv)}
+                  icon={<Gauge size={18} />} color="text-rose-400" delay={160} />
+                <MetricCard label="Impressões" value={fmtDot(t.impr)}
+                  icon={<BarChart3 size={18} />} color="text-blue-400" delay={200} />
+              </div>
+
+              {/* Side Panel - 3 cols */}
+              <div className="lg:col-span-3">
+                <SidePanel
+                  conversations={t.conv}
+                  costPerConv={costConv}
+                  cpc={cpc}
+                  ctr={ctr}
+                  clicks={t.clicks}
+                />
               </div>
             </div>
 
+            {/* ── ROW 2: Chart ── */}
+            <DailyChart data={daily} />
+
+            {/* ── ROW 3: Criativos ── */}
             <CreativesTable data={creatives} />
+
+            {/* ── ROW 4: Daily ── */}
             <DailyTable data={daily} />
           </>
         )}
       </main>
 
+      {/* ── FOOTER ─────────────── */}
       <footer className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="border-t border-white/5 pt-4 flex justify-between text-white/15 text-[10px]">
           <span>Dashboard Barbara — Ascensão 2026</span>
