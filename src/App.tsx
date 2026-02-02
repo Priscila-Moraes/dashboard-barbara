@@ -11,8 +11,8 @@ import MetricCard from './components/MetricCard'
 import Funnel from './components/Funnel'
 import SidePanel from './components/SidePanel'
 import DailyChart from './components/DailyChart'
+import CampaignsTable from './components/CampaignsTable'
 import CreativesTable from './components/CreativesTable'
-import DailyTable from './components/DailyTable'
 
 export default function App() {
   const [s, setS] = useState(new Date('2026-01-20'))
@@ -116,11 +116,11 @@ export default function App() {
             {/* ── ROW 2: Chart ── */}
             <DailyChart data={daily} />
 
-            {/* ── ROW 3: Criativos ── */}
-            <CreativesTable data={creatives} />
+            {/* ── ROW 3: Campanhas ── */}
+            <CampaignsTable data={creatives} />
 
-            {/* ── ROW 4: Daily ── */}
-            <DailyTable data={daily} />
+            {/* ── ROW 4: Criativos ── */}
+            <CreativesTable data={creatives} />
           </>
         )}
       </main>

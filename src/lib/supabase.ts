@@ -13,7 +13,7 @@ export interface DailySummary {
 
 export interface AdCreative {
   id: number; date: string; ad_id: string; ad_name: string; product_name: string
-  spend: number; impressions: number; link_clicks: number; leads: number
+  campaign_name: string; spend: number; impressions: number; link_clicks: number; leads: number
   cpl: number; cpa: number; ctr: number; instagram_permalink: string
 }
 
