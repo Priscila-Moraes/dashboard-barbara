@@ -6,40 +6,33 @@
 
 body {
   font-family: 'Inter', sans-serif;
-  background: #0c0c14;
-  color: #fff;
+  background: #0f0c0a;
+  color: #e8e0d8;
   min-height: 100vh;
 }
 
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: rgba(184,106,42,0.25); border-radius: 3px; }
 
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(16px); }
+  from { opacity: 0; transform: translateY(18px); }
   to { opacity: 1; transform: translateY(0); }
 }
 .anim { animation: fadeUp 0.5s cubic-bezier(.22,.61,.36,1) both; }
 
-/* Funnel */
-.funnel-step {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  padding: 14px 24px;
-  text-align: center;
-  clip-path: polygon(4% 0%, 96% 0%, 100% 100%, 0% 100%);
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(184,106,42,0); }
+  50% { box-shadow: 0 0 20px 2px rgba(184,106,42,0.15); }
 }
 
 /* Day Picker dark */
-.rdp { --rdp-cell-size: 34px; --rdp-accent-color: #b5f542; --rdp-background-color: rgba(181,245,66,0.1); margin: 0; }
-.rdp-day_selected, .rdp-day_selected:focus-visible, .rdp-day_selected:hover { background-color: #b5f542 !important; color: #000 !important; }
-.rdp-day_range_middle { background-color: rgba(181,245,66,0.1) !important; color: #fff !important; }
-.rdp-day { color: #aaa; border-radius: 6px; }
-.rdp-day:hover { background-color: rgba(255,255,255,0.07); }
-.rdp-head_cell { color: #666; font-size: 0.7rem; font-weight: 500; }
-.rdp-caption_label { color: #fff; font-weight: 600; font-size: 0.82rem; }
-.rdp-nav_button { color: #666; }
-.rdp-nav_button:hover { background-color: rgba(255,255,255,0.07); }
+.rdp { --rdp-cell-size: 34px; --rdp-accent-color: #b86a2a; --rdp-background-color: rgba(184,106,42,0.12); margin: 0; }
+.rdp-day_selected, .rdp-day_selected:focus-visible, .rdp-day_selected:hover { background-color: #b86a2a !important; color: #fff !important; }
+.rdp-day_range_middle { background-color: rgba(184,106,42,0.1) !important; color: #e8e0d8 !important; }
+.rdp-day { color: #8a7e72; border-radius: 6px; }
+.rdp-day:hover { background-color: rgba(184,106,42,0.12); }
+.rdp-head_cell { color: #5a5048; font-size: 0.7rem; }
+.rdp-caption_label { color: #e8e0d8; font-weight: 600; font-size: 0.85rem; }
+.rdp-nav_button { color: #5a5048; }
+.rdp-nav_button:hover { background-color: rgba(184,106,42,0.12); }

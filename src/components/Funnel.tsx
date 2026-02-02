@@ -1,65 +1,56 @@
-import { fmtDot, fmtBRL, fmtPct } from '../lib/utils'
+import { fmtDot } from '../lib/utils'
 
 interface Props {
   impressions: number
+  reach: number
   clicks: number
   conversations: number
-  spend: number
 }
 
-export default function Funnel({ impressions, clicks, conversations, spend }: Props) {
-  const cpm = impressions > 0 ? (spend / impressions) * 1000 : 0
-  const ctr = impressions > 0 ? (clicks / impressions) * 100 : 0
-  const cpc = clicks > 0 ? spend / clicks : 0
-  const convRate = clicks > 0 ? (conversations / clicks) * 100 : 0
-  const costConv = conversations > 0 ? spend / conversations : 0
-
+export default function Funnel({ impressions, reach, clicks, conversations }: Props) {
   const steps = [
-    { label: 'Impressions', value: fmtDot(impressions), width: '100%' },
-    { label: 'Link Clicks', value: fmtDot(clicks), width: '75%' },
-    { label: 'Conversas WhatsApp', value: fmtDot(conversations), width: '50%' },
+    { label: 'Impressões Gerais', value: fmtDot(impressions), pct: 100 },
+    { label: 'Alcance', value: fmtDot(reach), pct: impressions > 0 ? (reach / impressions) * 100 : 0 },
+    { label: 'Cliques Gerais', value: fmtDot(clicks), pct: impressions > 0 ? (clicks / impressions) * 100 : 0 },
+    { label: 'Leads Gerais', value: fmtDot(conversations), pct: impressions > 0 ? (conversations / impressions) * 100 : 0 },
   ]
 
-  const metrics = [
-    { label: 'CPM', value: fmtBRL(cpm), pos: 0 },
-    { label: 'CTR', value: fmtPct(ctr), pos: 0.5 },
-    { label: 'CPC Link', value: fmtBRL(cpc), pos: 1 },
-    { label: 'Conv. Rate', value: fmtPct(convRate), pos: 1.5 },
-    { label: 'Custo/Conversa', value: fmtBRL(costConv), pos: 2 },
-  ]
+  // Colors from light copper to deep copper
+  const colors = ['#d4935a', '#c47d3e', '#b86a2a', '#9a5422']
+  const glows = ['rgba(212,147,90,0.3)', 'rgba(196,125,62,0.25)', 'rgba(184,106,42,0.2)', 'rgba(154,84,34,0.15)']
 
   return (
-    <div className="flex items-start gap-6 w-full">
-      {/* Funnel steps */}
-      <div className="flex flex-col items-center gap-1.5 flex-1">
-        {steps.map((s, i) => (
-          <div key={i} className="w-full flex justify-center" style={{ maxWidth: s.width }}>
-            <div
-              className="funnel-step w-full"
-              style={{
-                background: i === 0
-                  ? 'linear-gradient(135deg, #b5f542, #8fd92a)'
-                  : i === 1
-                  ? 'linear-gradient(135deg, #a0e636, #7cc520)'
-                  : 'linear-gradient(135deg, #8ad42a, #68a818)',
-                minHeight: '68px',
-              }}
-            >
-              <span className="text-[11px] font-semibold text-black/60 uppercase tracking-wide">{s.label}</span>
-              <span className="text-2xl font-black text-black/90 leading-tight">{s.value}</span>
-            </div>
-          </div>
-        ))}
-      </div>
+    <div className="bg-[#1a1512] border border-[#2a2520] rounded-xl p-6 h-full flex flex-col">
+      <h3 className="text-[#8a7e72] text-[11px] font-semibold uppercase tracking-wider mb-6">Funil de Conversão</h3>
 
-      {/* Metrics sidebar */}
-      <div className="flex flex-col justify-between py-1 min-w-[130px]" style={{ height: `${steps.length * 68 + (steps.length - 1) * 6}px` }}>
-        {metrics.map((m, i) => (
-          <div key={i} className="text-right">
-            <p className="text-[10px] text-white/35 uppercase tracking-wider font-medium">{m.label}</p>
-            <p className="text-[17px] font-bold text-white/90">{m.value}</p>
-          </div>
-        ))}
+      <div className="flex-1 flex flex-col items-center justify-center gap-1.5">
+        {steps.map((step, i) => {
+          // Width: 100% → 78% → 56% → 38%  (inverted funnel visual)
+          const widths = [100, 78, 56, 38]
+          const w = widths[i]
+
+          return (
+            <div key={step.label} className="w-full flex flex-col items-center">
+              <div
+                className="relative flex flex-col items-center justify-center py-3.5 transition-all cursor-default group"
+                style={{
+                  width: `${w}%`,
+                  background: `linear-gradient(135deg, ${colors[i]}, ${colors[i]}dd)`,
+                  clipPath: i === 0
+                    ? 'polygon(0% 0%, 100% 0%, 95% 100%, 5% 100%)'
+                    : i === steps.length - 1
+                    ? 'polygon(4% 0%, 96% 0%, 92% 100%, 8% 100%)'
+                    : 'polygon(3% 0%, 97% 0%, 95% 100%, 5% 100%)',
+                  borderRadius: i === 0 ? '10px 10px 0 0' : i === steps.length - 1 ? '0 0 6px 6px' : '0',
+                  boxShadow: `0 4px 20px ${glows[i]}`,
+                }}
+              >
+                <span className="text-white/70 text-[9px] font-semibold uppercase tracking-wider">{step.label}</span>
+                <span className="text-white text-xl font-black mt-0.5">{step.value}</span>
+              </div>
+            </div>
+          )
+        })}
       </div>
     </div>
   )

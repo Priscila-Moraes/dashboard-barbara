@@ -1,5 +1,5 @@
 import { DailySummary } from '../lib/supabase'
-import { fmtCurrency, fmtNumber, fmtPct, fmtDateBR } from '../lib/utils'
+import { fmtBRL, fmtNum, fmtPct, fmtDateBR } from '../lib/utils'
 
 interface Props { data: DailySummary[] }
 
@@ -8,31 +8,31 @@ export default function DailyTable({ data }: Props) {
   const rows = [...data].sort((a, b) => b.date.localeCompare(a.date))
 
   return (
-    <div className="bg-white/[0.02] border border-white/[0.05] rounded-2xl overflow-hidden anim-fade-up" style={{ animationDelay: '350ms' }}>
-      <div className="px-6 py-4 border-b border-white/[0.05]">
-        <h3 className="text-white/70 font-semibold text-[15px]">Dados Diários</h3>
+    <div className="bg-[#1a1512] border border-[#2a2520] rounded-xl overflow-hidden anim" style={{ animationDelay: '400ms' }}>
+      <div className="px-5 py-3.5 border-b border-[#2a2520]">
+        <h3 className="text-[#8a7e72] text-[11px] font-semibold uppercase tracking-wider">Dados Diários</h3>
       </div>
       <div className="overflow-x-auto">
-        <table className="w-full text-[13px]">
+        <table className="w-full text-[12px]">
           <thead>
-            <tr className="border-b border-white/[0.05]">
-              {['Data','Investimento','Impressões','Cliques','Conversas','Custo/Conv.','CPM','CTR','CPC Link'].map(h => (
-                <th key={h} className={`px-4 py-3 text-white/35 font-medium text-[11px] uppercase tracking-wider ${h === 'Data' ? 'text-left' : 'text-right'}`}>{h}</th>
+            <tr className="border-b border-[#2a2520]">
+              {['Data','Investimento','Impressões','Cliques','Conversas','Custo/Conv.','CPM','CTR','CPC Link'].map((h, i) => (
+                <th key={h} className={`px-4 py-2.5 text-[#5a5048] font-medium text-[10px] uppercase tracking-wider ${i === 0 ? 'text-left' : 'text-right'}`}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {rows.map((r, i) => (
-              <tr key={r.date} className={`border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors ${i % 2 ? 'bg-white/[0.01]' : ''}`}>
-                <td className="px-4 py-2.5 text-white/60 font-medium">{fmtDateBR(r.date)}</td>
-                <td className="px-4 py-2.5 text-right text-green-400 font-medium">{fmtCurrency(r.total_spend || 0)}</td>
-                <td className="px-4 py-2.5 text-right text-white/50">{fmtNumber(r.total_impressions || 0)}</td>
-                <td className="px-4 py-2.5 text-right text-white/50">{fmtNumber(r.total_link_clicks || 0)}</td>
-                <td className="px-4 py-2.5 text-right text-blue-400 font-medium">{fmtNumber(r.total_leads || 0)}</td>
-                <td className="px-4 py-2.5 text-right text-purple-400">{fmtCurrency(r.cpl || 0)}</td>
-                <td className="px-4 py-2.5 text-right text-amber-400">{fmtCurrency(r.cpm || 0)}</td>
-                <td className="px-4 py-2.5 text-right text-rose-400">{fmtPct(r.ctr || 0)}</td>
-                <td className="px-4 py-2.5 text-right text-orange-400">{fmtCurrency(r.cpa || 0)}</td>
+            {rows.map((r) => (
+              <tr key={r.date} className="border-b border-[#1e1a17] hover:bg-[#b86a2a]/5 transition-colors">
+                <td className="px-4 py-2.5 text-[#8a7e72] font-medium">{fmtDateBR(r.date)}</td>
+                <td className="px-4 py-2.5 text-right text-[#b86a2a] font-semibold">{fmtBRL(r.total_spend || 0)}</td>
+                <td className="px-4 py-2.5 text-right text-[#8a7e72]">{fmtNum(r.total_impressions || 0)}</td>
+                <td className="px-4 py-2.5 text-right text-[#8a7e72]">{fmtNum(r.total_link_clicks || 0)}</td>
+                <td className="px-4 py-2.5 text-right text-[#c4a882] font-semibold">{fmtNum(r.total_leads || 0)}</td>
+                <td className="px-4 py-2.5 text-right text-[#8a7e72]">{fmtBRL(r.cpl || 0)}</td>
+                <td className="px-4 py-2.5 text-right text-[#8a7e72]">{fmtBRL(r.cpm || 0)}</td>
+                <td className="px-4 py-2.5 text-right text-[#8a7e72]">{fmtPct(r.ctr || 0)}</td>
+                <td className="px-4 py-2.5 text-right text-[#8a7e72]">{fmtBRL(r.cpa || 0)}</td>
               </tr>
             ))}
           </tbody>
