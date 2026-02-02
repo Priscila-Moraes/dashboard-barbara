@@ -20,7 +20,7 @@ function aggregate(raw: AdCreative[]) {
       cpc: c.link_clicks > 0 ? c.spend / c.link_clicks : 0,
       cpm: c.impressions > 0 ? (c.spend / c.impressions) * 1000 : 0,
     }))
-    .sort((a, b) => b.spend - a.spend)
+    .sort((a, b) => b.leads - a.leads)
 }
 
 export function CampaignsTable({ data }: Props) {
