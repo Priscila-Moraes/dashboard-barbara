@@ -1,70 +1,72 @@
 import {
-  ComposedChart, Area, Line,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts'
-import { fmtDateShort, fmtBRL, fmtDot } from '../lib/utils'
-import { DailySummary } from '../lib/supabase'
+import { formatDate, formatCurrency } from '../lib/utils'
+import type { DailySummary } from '../lib/supabase'
 
 interface Props { data: DailySummary[] }
 
-export default function DailyChart({ data }: Props) {
-  const pts = data.map(r => ({
-    date: fmtDateShort(r.date),
-    investimento: r.total_spend || 0,
-    conversas: r.total_leads || 0,
-  }))
-
-  const Tip = ({ active, payload, label }: any) => {
-    if (!active || !payload?.length) return null
+export function DailyChart({ data }: Props) {
+  if (!data.length) {
     return (
-      <div className="bg-[#0f0f1a] border border-white/10 rounded-xl px-4 py-3 shadow-2xl text-xs">
-        <p className="text-white/40 mb-2 font-medium">{label}</p>
-        {payload.map((p: any) => (
-          <div key={p.dataKey} className="flex items-center gap-2 mb-0.5">
-            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: p.color || p.stroke }}></span>
-            <span className="text-white/40">{p.dataKey === 'investimento' ? 'Investimento' : 'Conversas'}:</span>
-            <span className="text-white font-semibold">
-              {p.dataKey === 'investimento' ? fmtBRL(p.value) : fmtDot(p.value)}
-            </span>
-          </div>
-        ))}
+      <div className="h-64 flex items-center justify-center text-white/40">
+        Sem dados para o período selecionado
       </div>
     )
   }
 
+  const chartData = data.map(d => ({
+    dateFormatted: formatDate(d.date),
+    spend: d.total_spend || 0,
+    conversas: d.total_leads || 0,
+  }))
+
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-gray-900 border border-white/20 rounded-lg p-3 shadow-xl">
+          <p className="text-sm font-medium text-white mb-2">{label}</p>
+          {payload.map((entry: any, index: number) => (
+            <div key={index} className="flex items-center gap-2 text-sm">
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
+              <span className="text-white/60">{entry.name}:</span>
+              <span className="text-white font-medium">
+                {entry.dataKey === 'spend' ? formatCurrency(entry.value) : entry.value}
+              </span>
+            </div>
+          ))}
+        </div>
+      )
+    }
+    return null
+  }
+
   return (
-    <div className="bg-[#12121e] border border-white/[0.06] rounded-2xl p-6 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
-      <h3 className="text-white/70 font-semibold text-sm mb-6">Evolução Diária</h3>
-      <div style={{ minHeight: 280 }}>
-        <ResponsiveContainer width="100%" height={280}>
-          <ComposedChart data={pts} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
-            <defs>
-              <linearGradient id="gradInvest" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.3} />
-                <stop offset="100%" stopColor="#3b82f6" stopOpacity={0} />
-              </linearGradient>
-              <linearGradient id="gradConv" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#06b6d4" stopOpacity={0.4} />
-                <stop offset="100%" stopColor="#06b6d4" stopOpacity={0.05} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
-            <XAxis dataKey="date" tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={{ stroke: 'rgba(255,255,255,0.05)' }} tickLine={false} />
-            <YAxis yAxisId="left" tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false}
-              tickFormatter={(v: number) => `R$ ${v >= 1e3 ? (v/1e3).toFixed(0) + 'K' : v}`} />
-            <YAxis yAxisId="right" orientation="right" tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false} />
-            <Tooltip content={<Tip />} />
-            <Area yAxisId="left" type="monotone" dataKey="investimento" stroke="#3b82f6" strokeWidth={2} fill="url(#gradInvest)" />
-            <Area yAxisId="right" type="monotone" dataKey="conversas" stroke="#06b6d4" strokeWidth={2} fill="url(#gradConv)" />
-            <Legend
-              verticalAlign="bottom"
-              formatter={(v: string) => <span className="text-white/40 text-xs ml-1">{v === 'investimento' ? 'Investimento' : 'Conversas'}</span>}
-              iconType="circle"
-              iconSize={8}
-            />
-          </ComposedChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
+    <ResponsiveContainer width="100%" height={280}>
+      <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+        <defs>
+          <linearGradient id="colorSpend" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+          </linearGradient>
+          <linearGradient id="colorConversions" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+            <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+          </linearGradient>
+        </defs>
+        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
+        <XAxis dataKey="dateFormatted" stroke="rgba(255,255,255,0.4)" fontSize={12} tickLine={false} axisLine={false} />
+        <YAxis yAxisId="left" stroke="rgba(255,255,255,0.4)" fontSize={12} tickLine={false} axisLine={false}
+          tickFormatter={(v) => `R$ ${v}`} />
+        <YAxis yAxisId="right" orientation="right" stroke="rgba(255,255,255,0.4)" fontSize={12} tickLine={false} axisLine={false} />
+        <Tooltip content={<CustomTooltip />} />
+        <Legend wrapperStyle={{ paddingTop: '20px' }}
+          formatter={(value) => <span className="text-white/60 text-sm">{value}</span>} />
+        <Area yAxisId="left" type="monotone" dataKey="spend" name="Investimento"
+          stroke="#3b82f6" strokeWidth={2} fillOpacity={1} fill="url(#colorSpend)" />
+        <Area yAxisId="right" type="monotone" dataKey="conversas" name="Conversas"
+          stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorConversions)" />
+      </AreaChart>
+    </ResponsiveContainer>
   )
 }

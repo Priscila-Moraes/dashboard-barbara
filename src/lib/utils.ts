@@ -1,13 +1,21 @@
-export const fmtBRL = (v: number) =>
-  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2 }).format(v)
-
-export const fmtNum = (v: number) => {
-  if (v >= 1e6) return (v / 1e6).toFixed(1).replace('.', ',') + ' mi'
-  if (v >= 1e3) return new Intl.NumberFormat('pt-BR').format(Math.round(v))
-  return new Intl.NumberFormat('pt-BR').format(Math.round(v))
+export function cn(...classes: (string | boolean | undefined)[]) {
+  return classes.filter(Boolean).join(' ')
 }
 
-export const fmtDot = (v: number) => new Intl.NumberFormat('pt-BR').format(Math.round(v))
-export const fmtPct = (v: number) => v.toFixed(2).replace('.', ',') + '%'
-export const fmtDateBR = (d: string) => { const [y, m, day] = d.split('-'); return `${day}/${m}/${y}` }
-export const fmtDateShort = (d: string) => { const [, m, day] = d.split('-'); return `${day}/${m}` }
+export const formatCurrency = (v: number) =>
+  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v)
+
+export const formatNumber = (v: number) =>
+  new Intl.NumberFormat('pt-BR').format(Math.round(v))
+
+export const formatPercent = (v: number) => v.toFixed(2).replace('.', ',') + '%'
+
+export const formatDate = (d: string) => {
+  const [, m, day] = d.split('-')
+  return `${day}/${m}`
+}
+
+export const formatDateBR = (d: string) => {
+  const [y, m, day] = d.split('-')
+  return `${day}/${m}/${y}`
+}

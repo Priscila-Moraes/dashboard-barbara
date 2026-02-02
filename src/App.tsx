@@ -1,40 +1,39 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { format } from 'date-fns'
+import { fetchDaily, fetchCreatives } from './lib/supabase'
+import type { DailySummary, AdCreative } from './lib/supabase'
+import { formatCurrency, formatNumber, formatPercent } from './lib/utils'
+import { DatePicker } from './components/DatePicker'
+import { Funnel } from './components/Funnel'
+import { MetricCard } from './components/MetricCard'
+import { DailyChart } from './components/DailyChart'
+import { CampaignsTable } from './components/CampaignsTable'
+import { CreativesTable } from './components/CreativesTable'
 import {
-  Loader2, RefreshCw, DollarSign, Eye,
-  MousePointerClick, TrendingDown, Gauge, MessageCircle
+  DollarSign, Eye, MousePointer, Users, TrendingDown, Gauge, RefreshCw
 } from 'lucide-react'
-import { fetchDaily, fetchCreatives, DailySummary, AdCreative } from './lib/supabase'
-import { fmtBRL, fmtDot, fmtPct } from './lib/utils'
-import DatePicker from './components/DatePicker'
-import MetricCard from './components/MetricCard'
-import Funnel from './components/Funnel'
-
-import DailyChart from './components/DailyChart'
-import CampaignsTable from './components/CampaignsTable'
-import CreativesTable from './components/CreativesTable'
 
 export default function App() {
-  const [s, setS] = useState(new Date('2026-01-20'))
-  const [e, setE] = useState(new Date())
+  const [dateRange, setDateRange] = useState({ start: '2026-01-20', end: format(new Date(), 'yyyy-MM-dd') })
   const [daily, setDaily] = useState<DailySummary[]>([])
   const [creatives, setCreatives] = useState<AdCreative[]>([])
   const [loading, setLoading] = useState(true)
 
-  const load = useCallback(async () => {
+  async function loadData() {
     setLoading(true)
     try {
       const [d, c] = await Promise.all([
-        fetchDaily(format(s, 'yyyy-MM-dd'), format(e, 'yyyy-MM-dd')),
-        fetchCreatives(format(s, 'yyyy-MM-dd'), format(e, 'yyyy-MM-dd')),
+        fetchDaily(dateRange.start, dateRange.end),
+        fetchCreatives(dateRange.start, dateRange.end),
       ])
       setDaily(d); setCreatives(c)
     } catch (err) { console.error(err) }
     finally { setLoading(false) }
-  }, [s, e])
+  }
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => { loadData() }, [dateRange])
 
+  // Aggregate
   const t = daily.reduce((a, r) => ({
     spend: a.spend + (r.total_spend || 0),
     impr: a.impr + (r.total_impressions || 0),
@@ -47,80 +46,89 @@ export default function App() {
   const cpc = t.clicks > 0 ? t.spend / t.clicks : 0
   const costConv = t.conv > 0 ? t.spend / t.conv : 0
 
+  const startDate = new Date(dateRange.start + 'T12:00:00')
+  const endDate = new Date(dateRange.end + 'T12:00:00')
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
+        <div className="text-white/60">Carregando dados...</div>
+      </div>
+    )
+  }
+
   return (
-    <div className="min-h-screen bg-[#0a0a12]">
-      {/* ── HEADER ─────────────── */}
-      <header className="sticky top-0 z-40 bg-[#0a0a12]/90 backdrop-blur-xl border-b border-white/5">
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="Ascensão 2026" className="h-7 object-contain" />
-          </div>
-          <div className="flex items-center gap-3">
-            <button onClick={load} disabled={loading}
-              className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/40 hover:text-white transition-all disabled:opacity-40">
-              <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
-            </button>
-            <DatePicker startDate={s} endDate={e} onChange={(a, b) => { setS(a); setE(b) }} />
+    <div className="min-h-screen bg-[#0a0a0f] text-white">
+      {/* Header */}
+      <header className="border-b border-white/10 bg-white/5 backdrop-blur-sm sticky top-0 z-50">
+        <div className="max-w-[1600px] mx-auto px-6 py-4">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-center gap-3">
+              <img src="/logo.png" alt="Ascensão 2026" className="h-8 object-contain" />
+            </div>
+            <div className="flex items-center gap-4">
+              <button onClick={loadData} disabled={loading}
+                className="p-2 rounded-lg bg-white/10 hover:bg-white/15 text-white/40 hover:text-white transition-all">
+                <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+              </button>
+              <DatePicker startDate={startDate} endDate={endDate} onChange={setDateRange} />
+            </div>
           </div>
         </div>
       </header>
 
-      {/* ── CONTENT ────────────── */}
-      <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-5">
-        {loading ? (
-          <div className="flex items-center justify-center h-80">
-            <Loader2 className="animate-spin text-emerald-500" size={28} />
-          </div>
-        ) : daily.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-80 text-white/30">
-            <p className="text-lg font-semibold">Sem dados para o período</p>
-            <p className="text-sm mt-1">Selecione outro intervalo</p>
-          </div>
-        ) : (
-          <>
-            {/* ── ROW 1: Funnel + Metrics ── */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 animate-fade-in-up">
-              {/* Funnel - 5 cols */}
-              <div className="lg:col-span-5">
-                <Funnel impressions={t.impr} clicks={t.clicks} conversations={t.conv} />
-              </div>
+      {/* Main Content */}
+      <main className="max-w-[1600px] mx-auto px-6 py-6">
+        <div className="space-y-6">
 
-              {/* Metric Cards - 2x3 grid - 7 cols */}
-              <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-3">
-                <MetricCard label="Investimento" value={fmtBRL(t.spend)}
-                  icon={<DollarSign size={18} />} color="text-emerald-400" delay={0} />
-                <MetricCard label="Conversas" value={fmtDot(t.conv)}
-                  icon={<MessageCircle size={18} />} color="text-cyan-400" delay={40} />
-                <MetricCard label="Custo/Conv." value={fmtBRL(costConv)}
-                  icon={<Gauge size={18} />} color="text-purple-400" delay={80} />
-                <MetricCard label="CPM" value={fmtBRL(cpm)}
-                  icon={<Eye size={18} />} color="text-amber-400" delay={120} />
-                <MetricCard label="CTR" value={fmtPct(ctr)}
-                  icon={<MousePointerClick size={18} />} color="text-rose-400" delay={160} />
-                <MetricCard label="CPC Link" value={fmtBRL(cpc)}
-                  icon={<TrendingDown size={18} />} color="text-orange-400" delay={200} />
-              </div>
+          {/* Top Row - Funnel + Key Metrics */}
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            {/* Funnel */}
+            <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+              <h3 className="text-sm font-medium text-white/60 mb-4">Funil de Conversão</h3>
+              <Funnel
+                impressions={t.impr}
+                clicks={t.clicks}
+                conversations={t.conv}
+              />
             </div>
 
-            {/* ── ROW 2: Chart ── */}
+            {/* Key Metrics Grid */}
+            <div className="grid grid-cols-2 gap-4">
+              <MetricCard label="Investimento" value={formatCurrency(t.spend)}
+                icon={<DollarSign className="w-5 h-5" />} color="blue" />
+              <MetricCard label="CPM" value={formatCurrency(cpm)}
+                icon={<Eye className="w-5 h-5" />} color="gray" />
+              <MetricCard label="CTR" value={formatPercent(ctr)}
+                icon={<MousePointer className="w-5 h-5" />} color="blue" />
+              <MetricCard label="CPC Link" value={formatCurrency(cpc)}
+                icon={<TrendingDown className="w-5 h-5" />} color="yellow" />
+              <MetricCard label="Custo/Conv." value={formatCurrency(costConv)}
+                icon={<Gauge className="w-5 h-5" />} color="green" />
+              <MetricCard label="Conversas" value={formatNumber(t.conv)}
+                icon={<Users className="w-5 h-5" />} color="purple" />
+            </div>
+          </div>
+
+          {/* Daily Chart */}
+          <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+            <h3 className="text-sm font-medium text-white/60 mb-4">Evolução Diária</h3>
             <DailyChart data={daily} />
+          </div>
 
-            {/* ── ROW 3: Campanhas ── */}
+          {/* Campaigns Table */}
+          <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+            <h3 className="text-sm font-medium text-white/60 mb-4">Campanhas</h3>
             <CampaignsTable data={creatives} />
+          </div>
 
-            {/* ── ROW 4: Criativos ── */}
+          {/* Creatives Table */}
+          <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+            <h3 className="text-sm font-medium text-white/60 mb-4">Top Criativos</h3>
             <CreativesTable data={creatives} />
-          </>
-        )}
-      </main>
-
-      {/* ── FOOTER ─────────────── */}
-      <footer className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="border-t border-white/5 pt-4 flex justify-between text-white/15 text-[10px]">
-          <span>Dashboard Barbara — Ascensão 2026</span>
-          <span>Atualizado diariamente via n8n</span>
+          </div>
         </div>
-      </footer>
+      </main>
     </div>
   )
 }

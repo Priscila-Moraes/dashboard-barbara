@@ -1,52 +1,51 @@
-import { fmtDot } from '../lib/utils'
+import { formatNumber } from '../lib/utils'
 
-interface Props {
+interface FunnelProps {
   impressions: number
   clicks: number
   conversations: number
 }
 
-export default function Funnel({ impressions, clicks, conversations }: Props) {
+export function Funnel({ impressions, clicks, conversations }: FunnelProps) {
   const steps = [
-    { label: 'Impressões', value: impressions, color: '#22c55e' },
-    { label: 'Cliques', value: clicks, color: '#06b6d4' },
-    { label: 'Conversas', value: conversations, color: '#10b981' },
+    { label: 'Impressões', value: impressions, color: 'from-blue-500 to-blue-600' },
+    { label: 'Cliques', value: clicks, color: 'from-cyan-500 to-cyan-600' },
+    { label: 'Conversas', value: conversations, color: 'from-green-500 to-green-600' },
   ]
 
-  const max = Math.max(...steps.map(s => s.value), 1)
+  const maxValue = Math.max(...steps.map(s => s.value), 1)
 
   return (
-    <div className="bg-[#12121e] border border-white/[0.06] rounded-2xl p-6 h-full">
-      <h3 className="text-white/70 font-semibold text-sm mb-6">Funil de Conversão</h3>
-      <div className="space-y-4">
-        {steps.map((step, i) => {
-          const pct = (step.value / max) * 100
-          const convRate = i > 0 ? ((step.value / steps[i - 1].value) * 100) : 100
-          return (
-            <div key={step.label}>
-              {/* Rate label */}
-              {i > 0 && (
-                <div className="text-white/30 text-[11px] mb-1.5 ml-1">
-                  {convRate.toFixed(1)}%
-                </div>
-              )}
-              {/* Bar */}
-              <div className="flex items-center gap-3">
-                <div
-                  className="relative h-11 rounded-lg flex items-center px-4 transition-all duration-500"
-                  style={{
-                    width: `${Math.max(pct, 25)}%`,
-                    background: `linear-gradient(90deg, ${step.color}, ${step.color}99)`,
-                  }}
-                >
-                  <span className="text-white font-semibold text-[13px] whitespace-nowrap">{step.label}</span>
-                </div>
-                <span className="text-white font-bold text-base whitespace-nowrap">{fmtDot(step.value)}</span>
+    <div className="space-y-3">
+      {steps.map((step, index) => {
+        const widthPercent = Math.max((step.value / maxValue) * 100, 20)
+        const rate = index > 0 && steps[index - 1].value > 0
+          ? ((step.value / steps[index - 1].value) * 100).toFixed(1)
+          : null
+
+        return (
+          <div key={step.label} className="relative">
+            {rate && (
+              <div className="absolute -left-2 top-1/2 -translate-y-1/2 -translate-x-full text-xs text-white/40 hidden xl:block">
+                {rate}%
               </div>
+            )}
+
+            <div
+              className={`relative h-14 bg-gradient-to-r ${step.color} rounded-lg flex items-center justify-between px-4 transition-all duration-500`}
+              style={{
+                width: `${widthPercent}%`,
+                clipPath: index < steps.length - 1
+                  ? 'polygon(0 0, 100% 0, 97% 100%, 3% 100%)'
+                  : 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'
+              }}
+            >
+              <span className="text-sm font-medium text-white/90">{step.label}</span>
+              <span className="text-lg font-bold text-white">{formatNumber(step.value)}</span>
             </div>
-          )
-        })}
-      </div>
+          </div>
+        )
+      })}
     </div>
   )
 }
