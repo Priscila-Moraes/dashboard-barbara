@@ -40,7 +40,6 @@ export default function App() {
 
   const reach = Math.round(t.impr * 0.65)
   const cpm = t.impr > 0 ? (t.spend / t.impr) * 1000 : 0
-  const ctr = t.impr > 0 ? (t.clicks / t.impr) * 100 : 0
   const cpc = t.clicks > 0 ? t.spend / t.clicks : 0
   const costConv = t.conv > 0 ? t.spend / t.conv : 0
 
@@ -55,18 +54,18 @@ export default function App() {
   ]
 
   return (
-    <div className="min-h-screen bg-[#0f0c0a]">
-      {/* ── HEADER ─────────────────── */}
-      <header className="sticky top-0 z-40 bg-[#0f0c0a]/90 backdrop-blur-lg border-b border-[#2a2520]">
+    <div className="min-h-screen bg-dark-950">
+      {/* HEADER */}
+      <header className="sticky top-0 z-40 backdrop-blur-xl bg-dark-950/80 border-b border-white/5">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <img src="/logo.png" alt="Ascensão 2026" className="h-8 object-contain" />
-            <div className="hidden sm:block h-6 w-px bg-[#2a2520]"></div>
-            <span className="hidden sm:block text-[#5a5048] text-xs font-medium">WhatsApp Leads</span>
+            <div className="hidden sm:block h-6 w-px bg-white/10"></div>
+            <span className="hidden sm:block text-white/30 text-xs font-medium">WhatsApp Leads</span>
           </div>
           <div className="flex items-center gap-2">
             <button onClick={load} disabled={loading}
-              className="p-2 rounded-lg bg-[#1a1512] border border-[#2a2520] hover:border-[#b86a2a]/40 text-[#5a5048] hover:text-[#b86a2a] transition disabled:opacity-40">
+              className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-all disabled:opacity-50">
               <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
             </button>
             <DatePicker startDate={s} endDate={e} onChange={(a, b) => { setS(a); setE(b) }} />
@@ -74,24 +73,22 @@ export default function App() {
         </div>
       </header>
 
-      {/* ── CONTENT ────────────────── */}
+      {/* CONTENT */}
       <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-5">
         {loading ? (
           <div className="flex items-center justify-center h-80">
-            <Loader2 className="animate-spin text-[#b86a2a]" size={28} />
+            <Loader2 className="animate-spin text-accent-500" size={28} />
           </div>
         ) : daily.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-80 text-[#5a5048]">
+          <div className="flex flex-col items-center justify-center h-80 text-white/30">
             <p className="text-lg font-semibold">Sem dados para o período</p>
             <p className="text-sm mt-1">Selecione outro intervalo</p>
           </div>
         ) : (
           <>
-            {/* ── Metric Cards Row ────── */}
             <MetricCards metrics={metrics} />
 
-            {/* ── Chart + Funnel ─────── */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 anim" style={{ animationDelay: '150ms' }}>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 animate-fade-in-up" style={{ animationDelay: '150ms' }}>
               <div className="lg:col-span-2">
                 <ComboChart data={daily} />
               </div>
@@ -100,18 +97,14 @@ export default function App() {
               </div>
             </div>
 
-            {/* ── Creatives Table ─────── */}
             <CreativesTable data={creatives} />
-
-            {/* ── Daily Table ─────────── */}
             <DailyTable data={daily} />
           </>
         )}
       </main>
 
-      {/* ── FOOTER ─────────────────── */}
       <footer className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="border-t border-[#1e1a17] pt-4 flex justify-between text-[#3a3530] text-[10px]">
+        <div className="border-t border-white/5 pt-4 flex justify-between text-white/15 text-[10px]">
           <span>Dashboard Barbara — Ascensão 2026</span>
           <span>Atualizado diariamente via n8n</span>
         </div>

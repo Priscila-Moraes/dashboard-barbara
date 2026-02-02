@@ -35,20 +35,20 @@ export default function DatePicker({ startDate, endDate, onChange }: Props) {
   return (
     <div ref={ref} className="relative">
       <button onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 px-4 py-2 bg-[#1a1512] border border-[#2a2520] rounded-lg text-sm text-[#c4a882] hover:border-[#b86a2a]/50 transition-all">
-        <Calendar size={14} className="text-[#b86a2a]" />
-        <span className="text-[13px]">{format(startDate, 'dd MMM', { locale: ptBR })} — {format(endDate, 'dd MMM yyyy', { locale: ptBR })}</span>
-        <ChevronDown size={13} className={`text-[#5a5048] transition-transform ${open ? 'rotate-180' : ''}`} />
+        className="flex items-center gap-2 px-4 py-2.5 bg-dark-800/80 border border-white/10 rounded-xl text-sm text-white/90 hover:border-accent-500/40 hover:bg-dark-700/80 transition-all duration-200">
+        <Calendar size={16} className="text-accent-400" />
+        <span>{format(startDate, 'dd/MM/yyyy')} — {format(endDate, 'dd/MM/yyyy')}</span>
+        <ChevronDown size={14} className={`text-white/50 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
-        <div className="absolute right-0 top-full mt-2 z-50 flex bg-[#1a1512] border border-[#2a2520] rounded-xl shadow-2xl shadow-black/70 overflow-hidden anim">
-          <div className="w-40 border-r border-[#2a2520] p-1.5 flex flex-col">
+        <div className="absolute right-0 top-full mt-2 z-50 flex bg-dark-800 border border-white/10 rounded-2xl shadow-2xl shadow-black/40 overflow-hidden animate-fade-in-up">
+          <div className="w-44 border-r border-white/10 p-2">
             {PRESETS.map(p => (
               <button key={p.label} onClick={() => pick(p)}
-                className="text-left px-3 py-1.5 text-[12px] text-[#8a7e72] hover:text-[#e8e0d8] hover:bg-[#b86a2a]/10 rounded-md transition-colors">{p.label}</button>
+                className="w-full text-left px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/5 rounded-lg transition-colors">{p.label}</button>
             ))}
           </div>
-          <div className="p-3">
+          <div className="p-4">
             <DayPicker mode="range" selected={range} onSelect={(r) => { setRange(r); if (r?.from && r?.to) onChange(r.from, r.to) }}
               locale={ptBR} numberOfMonths={2} defaultMonth={subMonths(new Date(), 1)} fromDate={D0} toDate={new Date()} />
           </div>
