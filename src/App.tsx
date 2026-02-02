@@ -1,15 +1,15 @@
 import { useState, useEffect, useCallback } from 'react'
 import { format } from 'date-fns'
 import {
-  Loader2, RefreshCw, DollarSign, Eye, BarChart3,
-  MousePointerClick, TrendingDown, Gauge
+  Loader2, RefreshCw, DollarSign, Eye,
+  MousePointerClick, TrendingDown, Gauge, MessageCircle
 } from 'lucide-react'
 import { fetchDaily, fetchCreatives, DailySummary, AdCreative } from './lib/supabase'
 import { fmtBRL, fmtDot, fmtPct } from './lib/utils'
 import DatePicker from './components/DatePicker'
 import MetricCard from './components/MetricCard'
 import Funnel from './components/Funnel'
-import SidePanel from './components/SidePanel'
+
 import DailyChart from './components/DailyChart'
 import CampaignsTable from './components/CampaignsTable'
 import CreativesTable from './components/CreativesTable'
@@ -78,38 +78,27 @@ export default function App() {
           </div>
         ) : (
           <>
-            {/* ── ROW 1: Funnel + Metrics + SidePanel ── */}
+            {/* ── ROW 1: Funnel + Metrics ── */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 animate-fade-in-up">
-              {/* Funnel - 4 cols */}
-              <div className="lg:col-span-4">
+              {/* Funnel - 5 cols */}
+              <div className="lg:col-span-5">
                 <Funnel impressions={t.impr} clicks={t.clicks} conversations={t.conv} />
               </div>
 
-              {/* Metric Cards - 2x3 grid - 5 cols */}
-              <div className="lg:col-span-5 grid grid-cols-2 gap-3">
+              {/* Metric Cards - 2x3 grid - 7 cols */}
+              <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-3">
                 <MetricCard label="Investimento" value={fmtBRL(t.spend)}
                   icon={<DollarSign size={18} />} color="text-emerald-400" delay={0} />
-                <MetricCard label="CPM" value={fmtBRL(cpm)}
-                  icon={<Eye size={18} />} color="text-amber-400" delay={40} />
-                <MetricCard label="CTR" value={fmtPct(ctr)}
-                  icon={<MousePointerClick size={18} />} color="text-purple-400" delay={80} />
-                <MetricCard label="CPC Link" value={fmtBRL(cpc)}
-                  icon={<TrendingDown size={18} />} color="text-cyan-400" delay={120} />
+                <MetricCard label="Conversas" value={fmtDot(t.conv)}
+                  icon={<MessageCircle size={18} />} color="text-cyan-400" delay={40} />
                 <MetricCard label="Custo/Conv." value={fmtBRL(costConv)}
-                  icon={<Gauge size={18} />} color="text-rose-400" delay={160} />
-                <MetricCard label="Impressões" value={fmtDot(t.impr)}
-                  icon={<BarChart3 size={18} />} color="text-blue-400" delay={200} />
-              </div>
-
-              {/* Side Panel - 3 cols */}
-              <div className="lg:col-span-3">
-                <SidePanel
-                  conversations={t.conv}
-                  costPerConv={costConv}
-                  cpc={cpc}
-                  ctr={ctr}
-                  clicks={t.clicks}
-                />
+                  icon={<Gauge size={18} />} color="text-purple-400" delay={80} />
+                <MetricCard label="CPM" value={fmtBRL(cpm)}
+                  icon={<Eye size={18} />} color="text-amber-400" delay={120} />
+                <MetricCard label="CTR" value={fmtPct(ctr)}
+                  icon={<MousePointerClick size={18} />} color="text-rose-400" delay={160} />
+                <MetricCard label="CPC Link" value={fmtBRL(cpc)}
+                  icon={<TrendingDown size={18} />} color="text-orange-400" delay={200} />
               </div>
             </div>
 
