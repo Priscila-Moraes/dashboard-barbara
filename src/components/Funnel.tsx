@@ -16,7 +16,7 @@ export function Funnel({ impressions, clicks, conversations }: FunnelProps) {
   const maxValue = Math.max(...steps.map(s => s.value), 1)
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-1">
       {steps.map((step, index) => {
         const widthPercent = Math.max((step.value / maxValue) * 100, 20)
         const rate = index > 0 && steps[index - 1].value > 0
@@ -24,10 +24,10 @@ export function Funnel({ impressions, clicks, conversations }: FunnelProps) {
           : null
 
         return (
-          <div key={step.label} className="relative">
+          <div key={step.label}>
             {rate && (
-              <div className="absolute -left-2 top-1/2 -translate-y-1/2 -translate-x-full text-xs text-white/40 hidden xl:block">
-                {rate}%
+              <div className="text-xs text-white/40 pl-1 py-0.5">
+                ↓ {rate}%
               </div>
             )}
 
