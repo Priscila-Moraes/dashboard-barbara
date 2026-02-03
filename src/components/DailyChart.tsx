@@ -4,6 +4,8 @@ import {
 import { formatDate, formatCurrency } from '../lib/utils'
 import type { DailySummary } from '../lib/supabase'
 
+import { format } from 'date-fns'
+
 interface Props { data: DailySummary[] }
 
 export function DailyChart({ data }: Props) {
@@ -15,17 +17,25 @@ export function DailyChart({ data }: Props) {
     )
   }
 
+  const today = format(new Date(), 'yyyy-MM-dd')
+
   const chartData = data.map(d => ({
-    dateFormatted: formatDate(d.date),
+    dateFormatted: formatDate(d.date) + (d.date === today ? ' ⏳' : ''),
     spend: d.total_spend || 0,
     conversas: d.total_leads || 0,
+    isToday: d.date === today,
   }))
+
+  const hasToday = chartData.some(d => d.isToday)
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
+      const isPartial = label?.includes('⏳')
       return (
         <div className="bg-gray-900 border border-white/20 rounded-lg p-3 shadow-xl">
-          <p className="text-sm font-medium text-white mb-2">{label}</p>
+          <p className="text-sm font-medium text-white mb-2">
+            {label} {isPartial && <span className="text-yellow-400 text-xs">(parcial)</span>}
+          </p>
           {payload.map((entry: any, index: number) => (
             <div key={index} className="flex items-center gap-2 text-sm">
               <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />

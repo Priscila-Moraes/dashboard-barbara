@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { format, subDays } from 'date-fns'
+import { format } from 'date-fns'
 import { fetchDaily, fetchCreatives } from './lib/supabase'
 import type { DailySummary, AdCreative } from './lib/supabase'
 import { formatCurrency, formatNumber, formatPercent } from './lib/utils'
@@ -14,7 +14,7 @@ import {
 } from 'lucide-react'
 
 export default function App() {
-  const [dateRange, setDateRange] = useState({ start: '2026-01-20', end: format(subDays(new Date(), 1), 'yyyy-MM-dd') })
+  const [dateRange, setDateRange] = useState({ start: '2026-01-20', end: format(new Date(), 'yyyy-MM-dd') })
   const [daily, setDaily] = useState<DailySummary[]>([])
   const [creatives, setCreatives] = useState<AdCreative[]>([])
   const [loading, setLoading] = useState(true)
@@ -117,7 +117,12 @@ export default function App() {
 
           {/* Daily Chart */}
           <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-            <h3 className="text-sm font-medium text-white/60 mb-4">Evolução Diária</h3>
+            <div className="flex items-center gap-2 mb-4">
+              <h3 className="text-sm font-medium text-white/60">Evolução Diária</h3>
+              {dateRange.end === format(new Date(), 'yyyy-MM-dd') && (
+                <span className="text-xs text-yellow-400/80 bg-yellow-400/10 px-2 py-0.5 rounded-full">⏳ Hoje parcial</span>
+              )}
+            </div>
             <DailyChart data={daily} />
           </div>
 

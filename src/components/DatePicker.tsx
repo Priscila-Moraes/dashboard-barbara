@@ -12,15 +12,17 @@ interface Props {
 }
 
 const D0 = new Date('2026-01-20')
+const TODAY = new Date()
 const YESTERDAY = subDays(new Date(), 1)
 const PRESETS = [
+  { label: 'Hoje', fn: () => ({ from: TODAY, to: TODAY }) },
   { label: 'Ontem', fn: () => ({ from: YESTERDAY, to: YESTERDAY }) },
   { label: 'Últimos 7 dias', fn: () => ({ from: subDays(YESTERDAY, 6), to: YESTERDAY }) },
   { label: 'Últimos 14 dias', fn: () => ({ from: subDays(YESTERDAY, 13), to: YESTERDAY }) },
   { label: 'Últimos 30 dias', fn: () => ({ from: subDays(YESTERDAY, 29), to: YESTERDAY }) },
-  { label: 'Este mês', fn: () => ({ from: startOfMonth(new Date()), to: YESTERDAY }) },
+  { label: 'Este mês', fn: () => ({ from: startOfMonth(new Date()), to: TODAY }) },
   { label: 'Mês passado', fn: () => ({ from: startOfMonth(subMonths(new Date(), 1)), to: subDays(startOfMonth(new Date()), 1) }) },
-  { label: 'Todo período', fn: () => ({ from: D0, to: YESTERDAY }) },
+  { label: 'Todo período', fn: () => ({ from: D0, to: TODAY }) },
 ]
 
 export function DatePicker({ startDate, endDate, onChange }: Props) {
@@ -62,7 +64,7 @@ export function DatePicker({ startDate, endDate, onChange }: Props) {
           <div className="p-4">
             <DayPicker mode="range" selected={range}
               onSelect={(r) => { setRange(r); if (r?.from && r?.to) { apply(r.from, r.to) } }}
-              locale={ptBR} numberOfMonths={2} defaultMonth={subMonths(new Date(), 1)} fromDate={D0} toDate={YESTERDAY} />
+              locale={ptBR} numberOfMonths={2} defaultMonth={subMonths(new Date(), 1)} fromDate={D0} toDate={TODAY} />
           </div>
         </div>
       )}
