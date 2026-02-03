@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { format } from 'date-fns'
+import { format, subDays } from 'date-fns'
 import { fetchDaily, fetchCreatives } from './lib/supabase'
 import type { DailySummary, AdCreative } from './lib/supabase'
 import { formatCurrency, formatNumber, formatPercent } from './lib/utils'
@@ -14,7 +14,7 @@ import {
 } from 'lucide-react'
 
 export default function App() {
-  const [dateRange, setDateRange] = useState({ start: '2026-01-20', end: format(new Date(), 'yyyy-MM-dd') })
+  const [dateRange, setDateRange] = useState({ start: '2026-01-20', end: format(subDays(new Date(), 1), 'yyyy-MM-dd') })
   const [daily, setDaily] = useState<DailySummary[]>([])
   const [creatives, setCreatives] = useState<AdCreative[]>([])
   const [loading, setLoading] = useState(true)
